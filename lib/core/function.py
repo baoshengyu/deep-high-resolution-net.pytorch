@@ -16,7 +16,7 @@ import numpy as np
 import torch
 
 from core.evaluate import accuracy
-from core.inference import get_final_preds
+from core.inference import get_final_preds, heatmap2coord
 from utils.transforms import flip_back
 from utils.vis import save_debug_images
 
@@ -165,8 +165,10 @@ def validate(config, val_loader, val_dataset, model, criterion, output_dir,
             s = meta['scale'].numpy()
             score = meta['score'].numpy()
 
-            preds, maxvals = get_final_preds(
-                config, output.clone().cpu().numpy(), c, s)
+            #preds, maxvals = get_final_preds(
+            #    config, output.clone().cpu().numpy(), c, s)
+            
+            preds, maxvals = heatmap2coord(output, c, s, k=11)
 
             all_preds[idx:idx + num_images, :, 0:2] = preds[:, :, 0:2]
             all_preds[idx:idx + num_images, :, 2:3] = maxvals
