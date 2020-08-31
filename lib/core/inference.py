@@ -14,6 +14,17 @@ import numpy as np
 
 from utils.transforms import transform_preds
 
+def heatmap2coord(heatmap, center, scale, k=9):
+    N, C, H, W = heatmap.shape
+    score, index = heatmap.view(N,C,1,H*W).topk(k, dim=-1)
+    coord = torch.cat([index%W, index//W], 2).float()
+    coord = (coord*F.softmax(score,dim=-1)).sum(-1)
+    preds = coord.cpu().numpy()
+    for i in range(len(coord)):
+        preds[i] = transform_preds(
+            preds[i], center[i], scale[i], [W, H]
+        )
+    return preds, score[...,0].cpu().numpy()
 
 def get_max_preds(batch_heatmaps):
     '''
