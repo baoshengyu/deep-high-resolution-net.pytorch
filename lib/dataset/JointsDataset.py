@@ -252,8 +252,19 @@ class JointsDataset(Dataset):
 
             for joint_id in range(self.num_joints):
                 feat_stride = self.image_size / self.heatmap_size
-                mu_x = int(joints[joint_id][0] / feat_stride[0] + 0.5)
-                mu_y = int(joints[joint_id][1] / feat_stride[1] + 0.5)
+                # mu_x = int(joints[joint_id][0] / feat_stride[0] + 0.5)
+                # mu_y = int(joints[joint_id][1] / feat_stride[1] + 0.5)
+                # random-round
+                mu_x = joints[joint_id][0] / feat_stride[0]
+                if mu_x - np.floor(mu_x) > np.random.rand():
+                    mu_x = int(np.floor(mu_x) + 1)
+                else:
+                    mu_x = int(np.floor(mu_x))
+                mu_y = joints[joint_id][1] / feat_stride[1]
+                if mu_y - np.floor(mu_y) > np.random.rand():
+                    mu_y = int(np.floor(mu_y) + 1)
+                else:
+                    mu_y = int(np.floor(mu_y))
                 # Check that any part of the gaussian is in-bounds
                 ul = [int(mu_x - tmp_size), int(mu_y - tmp_size)]
                 br = [int(mu_x + tmp_size + 1), int(mu_y + tmp_size + 1)]
